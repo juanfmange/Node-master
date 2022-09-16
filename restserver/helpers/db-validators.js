@@ -18,10 +18,20 @@ const validaEmail = async (correo =! "") => {
             }
 };
 
+const existeUsuarioID = async (id) => {
+  const existeUsuarioID = await Usuario.findById(id);
+  if (!existeUsuarioID) {
+    throw new Error(
+      `El id ${id} no existe base de datos`
+    );
+  }
+};
+
 
 
 
 module.exports = {
     esRolValido,
-    validaEmail
+    validaEmail,
+    existeUsuarioID
 }

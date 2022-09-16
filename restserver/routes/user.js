@@ -4,14 +4,23 @@ const { usuariosGet,
         usuariosPut,
         usuariosPost,
         usuariosDelete } = require('../controllers/user');
-const { esRolValido, validaEmail } = require('../helpers/db-validators');
+const { esRolValido, validaEmail, existeUsuarioID } = require('../helpers/db-validators');
 const { validarCampos } = require('../middlewares/validar-campos');
 
 const router = Router();
 
 router.get("/", usuariosGet);
 
-router.put("/:id", usuariosPut);
+router.put(
+  "/:id",
+  [
+    check("id", "No es un ID valido").isMongoId(),
+    check("id").custom(existeUsuarioID),
+    check("rol").custom(esRolValido),
+    validarCampos,
+  ],
+  usuariosPut
+);
 
 router.post(
   "/",
@@ -21,13 +30,17 @@ router.post(
     check("correo", "El correo no parece un correo").isEmail(),
     check("correo").custom(validaEmail),
     // check("rol", "No es un rol permitido").isIn('ADMIN_ROLE', 'USER_ROLE'),
-      check("rol").custom(esRolValido),
+    check("rol").custom(esRolValido),
     validarCampos
   ],
   usuariosPost
 );
 
-router.delete("/", usuariosDelete);
+router.delete("/:id",[
+  check("id", "No es un ID valido").isMongoId(),
+  check('id').custom(existeUsuarioID),
+  validarCampos
+],usuariosDelete);
 
 
 
