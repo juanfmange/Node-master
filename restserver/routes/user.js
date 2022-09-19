@@ -13,6 +13,7 @@ const {
 } = require("../helpers/db-validators");
 const { validarCampos } = require("../middlewares/validar-campos");
 const { validarJWT } = require("../middlewares/validar-jwt");
+const { esAdmin } = require("../middlewares/verificar-rol");
 
 const router = Router();
 
@@ -50,6 +51,7 @@ router.delete(
   "/:id",
   [
     validarJWT,
+    esAdmin,
     check("id", "No es un ID valido").isMongoId(),
     check("id").custom(existeUsuarioID),
     validarCampos,
