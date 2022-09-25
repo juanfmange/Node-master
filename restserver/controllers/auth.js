@@ -1,7 +1,9 @@
-const { response } = require("express");
+const { response, json } = require("express");
 const Usuario = require("../models/usuario");
 const bcrypt = require("bcryptjs");
 const { generarJWT } = require("../helpers/jwt");
+const { googleVerify } = require("../helpers/google-verify");
+const usuario = require("../models/usuario");
 
 const login = async (req, res = response) => {
   const { correo, password } = req.body;
@@ -45,6 +47,54 @@ const login = async (req, res = response) => {
   }
 };
 
+
+
+const googleSignIn = async (req, res) => {
+ 
+    const { id_token } = req.body;
+
+ try {
+   const { correo, nombre, img } = await googleVerify(id_token);
+   let usuario = await Usuario.findOne({ correo });
+   if (!usuario) {
+     // crearlo
+     const data = {
+       nombre,
+       correo,
+       password: "p",
+       img,
+       rol: "USER_ROLE",
+       google: true,
+     };
+     usuario = new Usuario(data);
+     await usuario.save();
+   } else {
+     // TODO: si existe el usuario
+   }
+
+   // si el usuario en DB
+   if (!usuario.estado) {
+     return res.status(401).json({
+       msg: "Contacte al administrador, usuario bloqueado",
+     });
+   }
+
+   // generar el jwt
+   const token = await generarJWT(usuario.id);
+
+   res.json({
+     usuario,
+     token,
+   });
+ } catch (error) {
+   console.log(error);
+   res.status(400).json({
+     error,
+   });
+ }
+};
+
 module.exports = {
   login,
+  googleSignIn,
 };
