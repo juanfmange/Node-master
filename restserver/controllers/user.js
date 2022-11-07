@@ -24,6 +24,7 @@ const usuariosGet = async (req = request, res = response) => {
     total,
     usuarios,
   });
+  console.log(`${total} usuarios obtenidos de la base de datos`);
 };
 
 const usuariosPut = async (req, res = response) => {
@@ -56,6 +57,7 @@ const usuariosPost = async (req, res = response) => {
     msg: "Usuario creado exitosamente",
     usuario,
   });
+  console.log("un usuario fue creado exitosamente");
 };
 
 const usuariosDelete = async (req, res = response) => {
